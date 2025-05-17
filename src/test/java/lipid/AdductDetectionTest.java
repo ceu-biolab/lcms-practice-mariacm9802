@@ -25,7 +25,7 @@ public class AdductDetectionTest {
     public void shouldDetectAdductBasedOnMzDifference() {
 
         // Given two peaks with ~21.98 Da difference (e.g., [M+H]+ and [M+Na]+)
-        Peak mH = new Peak(700.500, 100000.0); // [M+H]+
+        Peak mH = new Peak(700.500, 100000.0);  // [M+H]+
         Peak mNa = new Peak(722.482, 80000.0);  // [M+Na]+
         Lipid lipid = new Lipid(1, "PC 34:1", "C42H82NO8P", "PC", 34, 1);
 
@@ -68,7 +68,6 @@ public class AdductDetectionTest {
         Annotation annotation = new Annotation(lipid, singlyCharged.getMz(), singlyCharged.getIntensity(), 10d, IoniationMode.POSITIVE, Set.of(singlyCharged, doublyCharged));
 
         assertNotNull("[M+H]+ should be detected", annotation.getAdduct());
-
         assertEquals( "Adduct inferred from lowest mz in group","[M+H]+", annotation.getAdduct());
     }
 

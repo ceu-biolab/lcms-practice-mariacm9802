@@ -11,6 +11,7 @@ public class AdductList {
 
     static {
         Map<String, Double> mapMZPositiveAdductsTMP = new LinkedHashMap<>();
+        //put: añadir ese aducto al mapa
         mapMZPositiveAdductsTMP.put("[M+H]+", -1.007276d);
         mapMZPositiveAdductsTMP.put("[M+2H]2+", -2.014552d);
         mapMZPositiveAdductsTMP.put("[M+Na]+", -22.989218d);
