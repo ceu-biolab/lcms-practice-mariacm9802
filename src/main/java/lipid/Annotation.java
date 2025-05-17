@@ -1,9 +1,9 @@
 package lipid;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import adduct.Adduct;
+import adduct.AdductList;
+
+import java.util.*;
 
 /**
  * Class to represent the annotation over a lipid
@@ -47,9 +47,11 @@ public class Annotation {
         this.intensity = intensity;
         this.ionizationMode = ionizationMode;
         // !!TODO This set should be sorted according to help the program to deisotope the signals plus detect the adduct
-        this.groupedSignals = new TreeSet<>(groupedSignals);
+        this.groupedSignals = new TreeSet<>(Comparator.comparing(Peak::getMz));
+        this.groupedSignals.addAll(groupedSignals);
         this.score = 0;
         this.totalScoresApplied = 0;
+        detectAdductFromPeaks();
     }
 
     public Lipid getLipid() {
@@ -128,5 +130,43 @@ public class Annotation {
                 lipid.getName(), mz, rtMin, adduct, intensity, score);
     }
 
+
     // !!TODO Detect the adduct with an algorithm or with drools, up to the user.
+
+    /**
+     * Attempts to infer the most likely adduct for this annotation's mz value
+     * by comparing grouped peaks and matching their inferred monoisotopic masses
+     * within a 10 ppm tolerance. Only non-multimeric positive adducts are considered.
+     *
+     */
+    public void detectAdductFromPeaks() {
+        List<Peak> peakList = new ArrayList<>(this.groupedSignals);
+
+        for (Peak p1 : peakList) {
+            if (Math.abs(p1.getMz() - this.mz) < 0.01) {
+                for (Map.Entry<String, Double> adduct1 : AdductList.MAPMZPOSITIVEADDUCTS.entrySet()) {
+
+                    // Evita aductos multiméricos como [2M+H]+
+                    if (Adduct.extractMultimer(adduct1.getKey()) > 1) continue;
+
+                    double m1 = Adduct.getMonoisotopicMassFromMZ(p1.getMz(), adduct1);
+
+                    for (Peak p2 : peakList) {
+                        if (p1.equals(p2)) continue;
+
+                        for (Map.Entry<String, Double> adduct2 : AdductList.MAPMZPOSITIVEADDUCTS.entrySet()) {
+                            double m2 = Adduct.getMonoisotopicMassFromMZ(p2.getMz(), adduct2);
+                            int ppmDiff = Adduct.calculatePPMIncrement(m1, m2);
+                            int ppmTolerance = 10;
+
+                            if (ppmDiff <= ppmTolerance) {
+                                this.adduct = adduct1.getKey(); // asignar el aducto asociado a this.mz
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

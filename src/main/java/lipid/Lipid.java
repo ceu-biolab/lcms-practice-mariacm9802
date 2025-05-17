@@ -52,6 +52,20 @@ public class Lipid {
         return doubleBondsCount;
     }
 
+    public int getLipidTypeRank() {
+        switch (lipidType) {
+            case "PG": return 1;
+            case "PE": return 2;
+            case "PI": return 3;
+            case "PA": return 4;
+            case "PS": return 5;
+            case "TG": return 50;
+            // Añadir resto de lipidos (buscar orden segun ejemplo)
+            case "PC": return 100;
+            default: return 0;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Lipid)) return false;
